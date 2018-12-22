@@ -82,7 +82,3 @@ for folder in sub_folders_dict:
 # Clear unnecessary memory
 del count_total_samples, folder,  new_path, sub_folder, sub_folders_dict, folders_to_remove
 gc.collect()
-            
-
-        
-        
