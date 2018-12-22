@@ -37,7 +37,7 @@ faces2 = faceCascade2.detectMultiScale(
             )
 faces3 = faceCascade3.detectMultiScale(
             gray, 
-            scaleFactor=1.2,
+            scaleFactor=1.2 ,
             minNeighbors=5
             )
 faces4 = faceCascade4.detectMultiScale(
@@ -62,9 +62,10 @@ else:
 # Draw rectangle around the faces
 for (x, y, w, h) in faces:
     cv2.rectangle(image, (x, y), (x+w+20, y+h+20), (0, 255, 0), 2)
+    new_image = gray[y:y+h+20, x:x+w+20]
     
 image = cv2.resize(image, (800, 600))
     
-cv2.imshow("Faces found", image)
+cv2.imshow("Faces found", new_image)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
