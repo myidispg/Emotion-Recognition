@@ -12,6 +12,7 @@ The images for a particular class will be stored in a single folder.
 import os
 import cv2
 import gc
+import matplotlib.pyplot as plt
 
 data_dir_base = '../Emotion-Dataset/cohn-kanade-images/'
 
@@ -31,13 +32,13 @@ for folder in sub_folders_dict:
     sub_folders_dict[folder] = valid_folders
     
 # A function to take an image and return only the face from it.
-casc_direcory = 'face-cascades/'
+casc_directory = 'face-cascades/'
 def find_face(image_path):
     # Create the haar cascade
-    faceCascade1 = cv2.CascadeClassifier(os.path.join(casc_direcory, 'haarcascade_frontalface_alt.xml'))
-    faceCascade2 = cv2.CascadeClassifier(os.path.join(casc_direcory, 'haarcascade_frontalface_alt2.xml'))
-    faceCascade3 = cv2.CascadeClassifier(os.path.join(casc_direcory, 'haarcascade_frontalface_alt_tree.xml'))
-    faceCascade4 = cv2.CascadeClassifier(os.path.join(casc_direcory, 'haarcascade_frontalface_default.xml'))
+    faceCascade1 = cv2.CascadeClassifier(os.path.join(casc_directory, 'haarcascade_frontalface_alt.xml'))
+    faceCascade2 = cv2.CascadeClassifier(os.path.join(casc_directory, 'haarcascade_frontalface_alt2.xml'))
+    faceCascade3 = cv2.CascadeClassifier(os.path.join(casc_directory, 'haarcascade_frontalface_alt_tree.xml'))
+    faceCascade4 = cv2.CascadeClassifier(os.path.join(casc_directory, 'haarcascade_frontalface_default.xml'))
     # Read the image
     image = cv2.imread(image_path)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -128,4 +129,45 @@ for folder in sub_folders_dict:
                 print(final_path)
                 cv2.imwrite(final_path, face)
                 count_dictionary[emotion_category] += 1
-                
+  
+total = 0
+
+for category in count_dictionary:
+    total += count_dictionary[category]
+    
+print('Total images processed {}'.format(total))
+# Freeing up some memmory
+del casc_directory, count_dictionary, category, emotion_category, face, file_prefix, final_path, folder, folders_list, image, images, list_, save_path, sub_folder, total, valid_folders
+gc.collect()
+
+# Now to get a count of all the images in all the created directories. 
+processed_folders = os.listdir(face_directory)
+count_images = {
+        '001': 0000,
+        '002': 0000,
+        '003': 0000,
+        '004': 0000,
+        '005': 0000,
+        '006': 0000,
+        '007': 0000
+        }
+
+for folder in processed_folders:
+    count_images[folder] = len(os.listdir(os.path.join(face_directory, folder)))
+
+# Plotting the number of image samples in each folder
+plot_x = []
+plot_y = []
+for key in count_images:
+    plot_x.append(key)
+    plot_y.append(count_images[key])
+
+plt.bar(plot_x, plot_y)
+#plt.yticks(plot_y)
+#plt.xticks(plot_x)
+plt.xlabel('Folder')
+plt.ylabel('Count')
+plt.title('No. of images in each folder')
+plt.show()
+
+    
