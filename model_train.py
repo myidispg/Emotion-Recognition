@@ -10,9 +10,13 @@ import keras
 from keras.models import Sequential
 from keras.optimizers import Adam
 from keras.layers import Conv2D, MaxPool2D, Dropout, Flatten, Dense
+from sklearn.model_selection import train_test_split
 import os
 import random
 import numpy as np
+
+import cv2
+from imgaug import augmenters as iaa
 
 face_data_dir = '../faces-data/'
 
@@ -43,5 +47,38 @@ data_x[:], data_y[:] = zip(*shuffled_data)
 dataX = np.asarray(data_x)
 dataY = np.asarray(data_y, dtype='int64')
 
+# Split the data into train and validation set
+X_train, y_train, X_valid, y_valid = train_test_split(data_x, data_y, test_size = 0.2, random_state=12)
 
 # Perform some augmentation to the images. This will help in adding generality to the model.
+
+image = cv2.imread(os.path.join(face_data_dir, '001', dataset['001'][1]))
+
+def zoom(image):
+    zoom = iaa.Affine(scale=(1, 1.3))
+    return zoom.augment_image(image)
+
+def pan(image):
+    pan = iaa.Affine(translate_percent={'x': (-0.1, 0.1), 'y':(-0.1, 0.1)})
+    return pan.augment_image(image)
+
+def img_random_brightness(image):
+    brightness = iaa.Multiply((0.2, 1.2))
+    return brightness.augment_image(image)
+
+def img_random_flip(image):
+    image = cv2.flip(image, 1)
+    return image
+
+def random_augment(image_path):
+    image = cv2.imread(image_path)
+    if np.random.rand()< 0.5:
+        image = pan(image)
+    if np.random.rand()< 0.5:
+        image = zoom(image)
+    if np.random.rand()< 0.5:
+        image = img_random_brightness(image)
+    if np.random.rand()< 0.5:
+        image = img_random_flip(image)
+        
+    return image

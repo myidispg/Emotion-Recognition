@@ -137,7 +137,7 @@ for category in count_dictionary:
     
 print('Total images processed {}'.format(total))
 # Freeing up some memmory
-del casc_directory, count_dictionary, category, emotion_category, face, file_prefix, final_path, folder, folders_list, image, images, list_, save_path, sub_folder, total, valid_folders
+del casc_directory, count_dictionary, category, emotion_category, face, file_prefix, final_path, folder, folders_list, image, images, save_path, sub_folder, total, valid_folders
 gc.collect()
 
 # Now to get a count of all the images in all the created directories. 
@@ -169,3 +169,21 @@ plt.xlabel('Folder')
 plt.ylabel('Count')
 plt.title('No. of images in each folder')
 plt.show()    
+
+# Load all images, convert to grayscale and resize to 192x192. Also normalize values to be between 0 and 1
+
+folders = os.listdir(face_directory)
+
+all_images = {}
+
+for folder in folders:
+    all_images[folder] = os.listdir(os.path.join(face_directory, folder))
+    
+for folder in all_images:
+    for image_name in all_images[folder]:
+        image = cv2.imread(os.path.join(face_directory, folder, image_name))
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        image = cv2.resize(image, (192, 192))
+#        image = cv2.normalize(image, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
+        print('Saving image- {}'.format(os.path.join(face_directory, folder, image_name)))
+        cv2.imwrite(os.path.join(face_directory, folder, image_name), image)
