@@ -32,7 +32,7 @@ for folder in sub_folders_dict:
     
 # A function to take an image and return only the face from it.
 casc_direcory = 'face-cascades/'
-def find_face(image_path, face_dir):
+def find_face(image_path):
     # Create the haar cascade
     faceCascade1 = cv2.CascadeClassifier(os.path.join(casc_direcory, 'haarcascade_frontalface_alt.xml'))
     faceCascade2 = cv2.CascadeClassifier(os.path.join(casc_direcory, 'haarcascade_frontalface_alt2.xml'))
@@ -83,7 +83,7 @@ def find_face(image_path, face_dir):
     
 # Go over all images, extract faces and save them
     
-face_directory = 'faces-data/' # Root directory where the faces will be saved.
+face_directory = '../faces-data/' # Root directory where the faces will be saved.
 
 # adictionary which will serve as a counter for image names while saving them.
 count_dictionary = {
@@ -96,17 +96,36 @@ count_dictionary = {
         '007': 0000
         }
 
+# The prefix is supposed to make the total length of file name of format 00000.png
+def get_file_prefix(count):
+    if count/10 < 1:
+        return '0000'
+    elif count/100 < 1:
+        return '000'
+    elif count/1000 < 1:
+        return '00'
+    elif count/10000 < 1:
+        return '0'
+    
+ 
 for folder in sub_folders_dict:
     for sub_folder in sub_folders_dict[folder]:
         images = os.listdir(os.path.join(data_dir_base, folder, sub_folder))
         for image in images:
-            print(image)
-            face = find_face(os.path.join(data_dir_base, folder, sub_folder, image), face_directory)
+#            print(image)
+            face = find_face(os.path.join(data_dir_base, folder, sub_folder, image))
             emotion_category = image.split('_')[1]
-            save_path = os.path.join(face_directory, emotion_category, str(count_dictionary[emotion_category])) + '.png'
-            cv2.imwrite(save_path, face)
-            count_dictionary[emotion_category] += 1
-            
-    
-    
-    
+            save_path = os.path.join(os.getcwd(), face_directory, emotion_category)
+            file_prefix = get_file_prefix(count_dictionary[emotion_category]) 
+            final_path = os.path.join(save_path, file_prefix + str(count_dictionary[emotion_category]) + '.png')
+            if os.path.isdir(save_path):
+                print(final_path)
+                cv2.imwrite(final_path, face)
+                count_dictionary[emotion_category] += 1
+            else:
+                print('Creating directory')
+                os.makedirs(os.path.join(os.getcwd(), face_directory, emotion_category), exist_ok=True)
+                print(final_path)
+                cv2.imwrite(final_path, face)
+                count_dictionary[emotion_category] += 1
+                
