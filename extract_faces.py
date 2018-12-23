@@ -31,7 +31,6 @@ for folder in sub_folders_dict:
     sub_folders_dict[folder] = valid_folders
     
 # A function to take an image and return only the face from it.
-face_directory = 'faces-data/'
 casc_direcory = 'face-cascades/'
 def find_face(image_path, face_dir):
     # Create the haar cascade
@@ -83,14 +82,31 @@ def find_face(image_path, face_dir):
     return new_image
     
 # Go over all images, extract faces and save them
+    
+face_directory = 'faces-data/' # Root directory where the faces will be saved.
+
+# adictionary which will serve as a counter for image names while saving them.
+count_dictionary = {
+        '001': 0000,
+        '002': 0000,
+        '003': 0000,
+        '004': 0000,
+        '005': 0000,
+        '006': 0000,
+        '007': 0000
+        }
+
 for folder in sub_folders_dict:
     for sub_folder in sub_folders_dict[folder]:
         images = os.listdir(os.path.join(data_dir_base, folder, sub_folder))
         for image in images:
             print(image)
             face = find_face(os.path.join(data_dir_base, folder, sub_folder, image), face_directory)
-        
-
+            emotion_category = image.split('_')[1]
+            save_path = os.path.join(face_directory, emotion_category, str(count_dictionary[emotion_category])) + '.png'
+            cv2.imwrite(save_path, face)
+            count_dictionary[emotion_category] += 1
+            
     
     
     
