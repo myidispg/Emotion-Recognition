@@ -168,6 +168,4 @@ plt.bar(plot_x, plot_y)
 plt.xlabel('Folder')
 plt.ylabel('Count')
 plt.title('No. of images in each folder')
-plt.show()
-
-    
+plt.show()    
