@@ -14,6 +14,7 @@ from sklearn.model_selection import train_test_split
 import os
 import random
 import numpy as np
+import pandas as pd
 
 import cv2
 from imgaug import augmenters as iaa
@@ -93,29 +94,51 @@ gc.collect()
 # Load the required stuff for landmark detection.
 from imutils import face_utils
 import dlib
+from landmarks_calculation import left, right
 
 p = "shape_predictor_68_face_landmarks.dat"
 face_detector = dlib.get_frontal_face_detector()
 landmark_predictor = dlib.shape_predictor(p)
 
-# 2 lists to hold face-masks values and their corresponding categories.
-face_masks = []
-categories = []
+# Calculations to be made for facial muscle approximation.
 
+# 2 lists to hold face-masks values and their corresponding categories.
+face_masks_x = []
+face_masks_y = []
+categories = []
+average_coords = []
 
 # Loop over all images, detect landmarks, calculate face-masks and append to the lists.
-
 for i in range(len(X_train)):
     image = cv2.imread(X_train[i])
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     # Find faces.
-    rect = face_detector(image)
-    # Find landmark
-    shape = landmark_predictor(image, rect)
-    # Convert to numpy array
-    shape = face_utils.shape_to_np(shape)
+    rects = face_detector(image, 0)
+    for (i, rect) in enumerate(rects):
+        # Find landmark
+        shape = landmark_predictor(image, rect)
+        # Convert to numpy array
+        shape = face_utils.shape_to_np(shape)
+    # List to hold values of single image
+    single_x = []
+    single_y = []
+    for j in range(len(left)):
+        single_x.append(shape[left[j]][0] - shape[right[j]][0])
+        single_y.append(shape[left[j]][1] - shape[right[j]][1])
+    # Append to the list to hold values from images.
+    face_masks_x.append(single_x)
+    face_masks_y.append(single_y)
+    single_x = np.asarray(single_x)
+    single_y = np.asarray(single_y)
+    average_coords.append((single_x + single_y)/2)
+    categories.append(y_train[i])
     
-    print(shape)
+
+    
+        
+        
+    
+    
     
 
 
