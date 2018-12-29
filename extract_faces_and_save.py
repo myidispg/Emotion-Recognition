@@ -183,7 +183,7 @@ for folder in all_images:
     for image_name in all_images[folder]:
         image = cv2.imread(os.path.join(face_directory, folder, image_name))
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        image = cv2.resize(image, (192, 192))
+        image = cv2.resize(image, (64,64))
 #        image = cv2.normalize(image, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
         print('Saving image- {}'.format(os.path.join(face_directory, folder, image_name)))
         cv2.imwrite(os.path.join(face_directory, folder, image_name), image)
