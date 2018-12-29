@@ -35,7 +35,7 @@ data_y = []
 for category in dataset:
 #    data_y.append(category)
     for image in dataset[category]:
-        data_x.append(image)
+        data_x.append(face_data_dir + category + '/' +image)
         data_y.append(category)
 
 # Shuffle the dataset. Otherwise all samples of a category will be fed into the model in sequence.
@@ -48,7 +48,7 @@ dataX = np.asarray(data_x)
 dataY = np.asarray(data_y, dtype='int64')
 
 # Split the data into train and validation set.
-validation_size = 0.2
+validation_size = 0.0
 
 X_train, X_valid, y_train, y_valid = train_test_split(data_x, data_y, test_size = validation_size, random_state=12)
 
@@ -85,5 +85,37 @@ def random_augment(image_path):
         
     return image
 
+import gc
+
+del categories, category, dataX, dataY, data_x, data_y, i, image, shuffled_data, validation_size
+gc.collect()
+
+# Load the required stuff for landmark detection.
+from imutils import face_utils
+import dlib
+
+p = "shape_predictor_68_face_landmarks.dat"
+face_detector = dlib.get_frontal_face_detector()
+landmark_predictor = dlib.shape_predictor(p)
+
+# 2 lists to hold face-masks values and their corresponding categories.
+face_masks = []
+categories = []
+
+
+# Loop over all images, detect landmarks, calculate face-masks and append to the lists.
+
+for i in range(len(X_train)):
+    image = cv2.imread(X_train[i])
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # Find faces.
+    rect = face_detector(image)
+    # Find landmark
+    shape = landmark_predictor(image, rect)
+    # Convert to numpy array
+    shape = face_utils.shape_to_np(shape)
+    
+    print(shape)
+    
 
 
