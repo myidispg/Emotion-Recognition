@@ -105,11 +105,12 @@ landmark_predictor = dlib.shape_predictor(p)
 # 2 lists to hold face-masks values and their corresponding categories.
 face_masks_x = []
 face_masks_y = []
-categories = []
+#categories = []
 average_coords = []
 
 # Loop over all images, detect landmarks, calculate face-masks and append to the lists.
 for i in range(len(X_train)):
+    print('Working on image {}\n'.format(i))
     image = cv2.imread(X_train[i])
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     # Find faces.
@@ -131,7 +132,18 @@ for i in range(len(X_train)):
     single_x = np.asarray(single_x)
     single_y = np.asarray(single_y)
     average_coords.append((single_x + single_y)/2)
-    categories.append(y_train[i])
+#    categories.append(y_train[i])
+    
+
+average_coords = np.asarray(average_coords)
+categories = np.asarray(y_train, dtype='int32')
+
+
+# Convert the extracted data to Pandas DataFrame and save to CSV. 
+features_df = pd.DataFrame(average_coords)
+categories_df = pd.DataFrame(categories)
+features_df = pd.concat([features_df, categories_df], axis=1)
+features_df.to_csv('extracted_landmarks_data.csv', index=False)
     
 
     
