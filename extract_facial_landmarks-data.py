@@ -7,10 +7,6 @@ Created on Sun Dec 23 15:19:56 2018
 """
 
 import keras
-from keras.models import Sequential
-from keras.optimizers import Adam
-from keras.layers import Conv2D, MaxPool2D, Dropout, Flatten, Dense
-from sklearn.model_selection import train_test_split
 import os
 import random
 import numpy as np
@@ -47,11 +43,6 @@ data_x[:], data_y[:] = zip(*shuffled_data)
 # Convert the data to numpy array.
 dataX = np.asarray(data_x)
 dataY = np.asarray(data_y, dtype='int64')
-
-# Split the data into train and validation set.
-validation_size = 0.0
-
-X_train, X_valid, y_train, y_valid = train_test_split(data_x, data_y, test_size = validation_size, random_state=12)
 
 # Perform some augmentation to the images. This will help in adding generality to the model.
 

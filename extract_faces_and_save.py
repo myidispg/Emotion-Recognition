@@ -97,7 +97,7 @@ count_dictionary = {
         '007': 0000
         }
 
-# The prefix is supposed to make the total length of file name of format 00000.png
+# The prefix is supposed to make the file name of format 00000.png
 def get_file_prefix(count):
     if count/10 < 1:
         return '0000'
@@ -113,7 +113,7 @@ for folder in sub_folders_dict:
     for sub_folder in sub_folders_dict[folder]:
         images = os.listdir(os.path.join(data_dir_base, folder, sub_folder))
         for image in images:
-#            print(image)
+            print(image)
             face = find_face(os.path.join(data_dir_base, folder, sub_folder, image))
             emotion_category = image.split('_')[1]
             save_path = os.path.join(os.getcwd(), face_directory, emotion_category)
