@@ -166,13 +166,13 @@ gc.collect()
 # Now to get a count of all the images in all the created directories. 
 processed_folders = os.listdir(face_directory)
 count_images = {
-        '001': 0000,
-        '002': 0000,
-        '003': 0000,
-        '004': 0000,
-        '005': 0000,
-        '006': 0000,
-        '007': 0000
+        '1': 0000,
+        '2': 0000,
+        '3': 0000,
+        '4': 0000,
+        '5': 0000,
+        '6': 0000,
+        '7': 0000
         }
 
 for folder in processed_folders:

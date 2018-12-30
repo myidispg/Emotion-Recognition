@@ -15,7 +15,7 @@ import pandas as pd
 import cv2
 from imgaug import augmenters as iaa
 
-face_data_dir = '../faces-data/'
+face_data_dir = '../faces-data-new/'
 
 categories = os.listdir(face_data_dir)
 
@@ -46,40 +46,40 @@ dataY = np.asarray(data_y, dtype='int64')
 
 # Perform some augmentation to the images. This will help in adding generality to the model.
 
-image = cv2.imread(os.path.join(face_data_dir, '001', dataset['001'][1]))
-
-def zoom(image):
-    zoom = iaa.Affine(scale=(1, 1.3))
-    return zoom.augment_image(image)
-
-def pan(image):
-    pan = iaa.Affine(translate_percent={'x': (-0.1, 0.1), 'y':(-0.1, 0.1)})
-    return pan.augment_image(image)
-
-def img_random_brightness(image):
-    brightness = iaa.Multiply((0.2, 1.2))
-    return brightness.augment_image(image)
-
-def img_random_flip(image):
-    image = cv2.flip(image, 1)
-    return image
-
-def random_augment(image_path):
-    image = cv2.imread(image_path)
-    if np.random.rand()< 0.5:
-        image = pan(image)
-    if np.random.rand()< 0.5:
-        image = zoom(image)
-    if np.random.rand()< 0.5:
-        image = img_random_brightness(image)
-    if np.random.rand()< 0.5:
-        image = img_random_flip(image)
-        
-    return image
+#image = cv2.imread(os.path.join(face_data_dir, '1', dataset['1'][1]))
+#
+#def zoom(image):
+#    zoom = iaa.Affine(scale=(1, 1.3))
+#    return zoom.augment_image(image)
+#
+#def pan(image):
+#    pan = iaa.Affine(translate_percent={'x': (-0.1, 0.1), 'y':(-0.1, 0.1)})
+#    return pan.augment_image(image)
+#
+#def img_random_brightness(image):
+#    brightness = iaa.Multiply((0.2, 1.2))
+#    return brightness.augment_image(image)
+#
+#def img_random_flip(image):
+#    image = cv2.flip(image, 1)
+#    return image
+#
+#def random_augment(image_path):
+#    image = cv2.imread(image_path)
+#    if np.random.rand()< 0.5:
+#        image = pan(image)
+#    if np.random.rand()< 0.5:
+#        image = zoom(image)
+#    if np.random.rand()< 0.5:
+#        image = img_random_brightness(image)
+#    if np.random.rand()< 0.5:
+#        image = img_random_flip(image)
+#        
+#    return image
 
 import gc
 
-del categories, category, dataX, dataY, data_x, data_y, i, image, shuffled_data, validation_size
+del categories, category, data_x, data_y, i, image, shuffled_data
 gc.collect()
 
 # Load the required stuff for landmark detection.
@@ -91,18 +91,18 @@ p = "shape_predictor_68_face_landmarks.dat"
 face_detector = dlib.get_frontal_face_detector()
 landmark_predictor = dlib.shape_predictor(p)
 
-# Calculations to be made for facial muscle approximation.
+# -----------Calculations to be made for facial muscle approximation.------------
 
 # 2 lists to hold face-masks values and their corresponding categories.
 face_masks_x = []
 face_masks_y = []
 #categories = []
-average_coords = []
+distance_between = []
 
 # Loop over all images, detect landmarks, calculate face-masks and append to the lists.
-for i in range(len(X_train)):
+for i in range(len(dataX)):
     print('Working on image {}\n'.format(i))
-    image = cv2.imread(X_train[i])
+    image = cv2.imread(dataX[i])
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     # Find faces.
     rects = face_detector(image, 0)
@@ -122,26 +122,73 @@ for i in range(len(X_train)):
     face_masks_y.append(single_y)
     single_x = np.asarray(single_x)
     single_y = np.asarray(single_y)
-    average_coords.append((single_x + single_y)/2)
+#    distance = np.sqrt(np.square(single_x) + np.square(single_y))
+#    distance_between.append((single_x + single_y)/2)
+    distance_between.append(np.sqrt(np.square(single_x) + np.square(single_y)))
 #    categories.append(y_train[i])
     
 
-average_coords = np.asarray(average_coords)
-categories = np.asarray(y_train, dtype='int32')
+distance_between = np.asarray(distance_between)
+categories = np.asarray(dataY, dtype='int32')
 
 
 # Convert the extracted data to Pandas DataFrame and save to CSV. 
-features_df = pd.DataFrame(average_coords)
+features_df = pd.DataFrame(distance_between)
 categories_df = pd.DataFrame(categories)
 features_df = pd.concat([features_df, categories_df], axis=1)
-features_df.to_csv('extracted_landmarks_data.csv', index=False)
+features_df.to_csv('extracted_landmarks_data_new.csv', index=False)
     
 
     
+image = cv2.imread(dataX[1])
+rects = face_detector(image)    
+    
+# A function to take an image and return only the face from it.
+casc_directory = 'face-cascades/'
+def find_face(image_path):
+    # Create the haar cascade
+    faceCascade1 = cv2.CascadeClassifier(os.path.join(casc_directory, 'haarcascade_frontalface_alt.xml'))
+    faceCascade2 = cv2.CascadeClassifier(os.path.join(casc_directory, 'haarcascade_frontalface_alt2.xml'))
+    faceCascade3 = cv2.CascadeClassifier(os.path.join(casc_directory, 'haarcascade_frontalface_alt_tree.xml'))
+    faceCascade4 = cv2.CascadeClassifier(os.path.join(casc_directory, 'haarcascade_frontalface_default.xml'))
+    # Read the image
+    image = cv2.imread(image_path)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # Detect faces in the image using 4 different classifiers
+    faces1 = faceCascade1.detectMultiScale(
+                gray, 
+                scaleFactor=1.2,
+                minNeighbors=5
+                )
+    faces2 = faceCascade2.detectMultiScale(
+                gray, 
+                scaleFactor=1.2,
+                minNeighbors=5
+                )
+    faces3 = faceCascade3.detectMultiScale(
+                gray, 
+                scaleFactor=1.2 ,
+                minNeighbors=5
+                )
+    faces4 = faceCascade4.detectMultiScale(
+                gray, 
+                scaleFactor=1.2,
+                minNeighbors=5
+                )
+    
+    # Go over the detected faces of all the classifiers and select one.
+    if len(faces1) == 1:
+        faces = faces1
+    elif len(faces2) == 1:
+        faces = faces2
+    elif len(faces3) == 1:
+        faces = faces3
+    elif len(faces4) == 1:
+        faces = faces4
+    else:
+        print('No faces found')
         
-        
-    
-    
-    
+    return faces
 
+rects = find_face(dataX[2])
 
