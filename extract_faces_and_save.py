@@ -15,6 +15,7 @@ import gc
 import matplotlib.pyplot as plt
 
 data_dir_base = '../Emotion-Dataset/cohn-kanade-images/'
+emotion_dir = '../Emotion-Dataset/Emotion/'
 
 # Get a list of all the subject directories in the dataset folder.
 folders_list = os.listdir(data_dir_base)
@@ -84,17 +85,17 @@ def find_face(image_path):
     
 # Go over all images, extract faces and save them
     
-face_directory = '../faces-data/' # Root directory where the faces will be saved.
+face_directory = '../faces-data-new/' # Root directory where the faces will be saved.
 
 # adictionary which will serve as a counter for image names while saving them.
 count_dictionary = {
-        '001': 0000,
-        '002': 0000,
-        '003': 0000,
-        '004': 0000,
-        '005': 0000,
-        '006': 0000,
-        '007': 0000
+        '1': 0000,
+        '2': 0000,
+        '3': 0000,
+        '4': 0000,
+        '5': 0000,
+        '6': 0000,
+        '7': 0000
         }
 
 # The prefix is supposed to make the file name of format 00000.png
@@ -107,28 +108,46 @@ def get_file_prefix(count):
         return '00'
     elif count/10000 < 1:
         return '0'
+
+# A function to get the emotion category from the Emotions folder
+def find_emotion_category(path):
+    file_in_dir = os.listdir(path)
+    if len(file_in_dir) == 0:
+        return None
+    else:
+        with open(os.path.join(path, file_in_dir[0]), 'r') as file:
+            data = file.read()
+            data = data.split('.')[0].strip()
+            return data
+        
+test = find_emotion_category(os.path.join(emotion_dir, folder, sub_folder))
+        
     
- 
+# loop over all the images in dataset and save to another folder with its sub folders acting as categories.
 for folder in sub_folders_dict:
     for sub_folder in sub_folders_dict[folder]:
         images = os.listdir(os.path.join(data_dir_base, folder, sub_folder))
         for image in images:
             print(image)
-            face = find_face(os.path.join(data_dir_base, folder, sub_folder, image))
-            emotion_category = image.split('_')[1]
-            save_path = os.path.join(os.getcwd(), face_directory, emotion_category)
-            file_prefix = get_file_prefix(count_dictionary[emotion_category]) 
-            final_path = os.path.join(save_path, file_prefix + str(count_dictionary[emotion_category]) + '.png')
-            if os.path.isdir(save_path):
-                print(final_path)
-                cv2.imwrite(final_path, face)
-                count_dictionary[emotion_category] += 1
+            emotion_category = find_emotion_category(os.path.join(emotion_dir, folder, sub_folder))
+            if emotion_category is None:
+                pass
             else:
-                print('Creating directory')
-                os.makedirs(os.path.join(os.getcwd(), face_directory, emotion_category), exist_ok=True)
-                print(final_path)
-                cv2.imwrite(final_path, face)
-                count_dictionary[emotion_category] += 1
+#            emotion_category = image.split('_')[1]
+                face = find_face(os.path.join(data_dir_base, folder, sub_folder, image))
+                save_path = os.path.join(os.getcwd(), face_directory, emotion_category)
+                file_prefix = get_file_prefix(count_dictionary[emotion_category]) 
+                final_path = os.path.join(save_path, file_prefix + str(count_dictionary[emotion_category]) + '.png')
+                if os.path.isdir(save_path):
+                    print(final_path)
+                    cv2.imwrite(final_path, face)
+                    count_dictionary[emotion_category] += 1
+                else:
+                    print('Creating directory')
+                    os.makedirs(os.path.join(os.getcwd(), face_directory, emotion_category), exist_ok=True)
+                    print(final_path)
+                    cv2.imwrite(final_path, face)
+                    count_dictionary[emotion_category] += 1
   
 total = 0
 
