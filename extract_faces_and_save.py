@@ -111,14 +111,18 @@ def get_file_prefix(count):
 
 # A function to get the emotion category from the Emotions folder
 def find_emotion_category(path):
-    file_in_dir = os.listdir(path)
-    if len(file_in_dir) == 0:
-        return None
-    else:
-        with open(os.path.join(path, file_in_dir[0]), 'r') as file:
-            data = file.read()
-            data = data.split('.')[0].strip()
-            return data
+    # This check is made because sometimes, emotion label directory is non existent.
+    if os.path.isdir(path):
+        file_in_dir = os.listdir(path)
+        # This check is made to find if the emotion label is present.
+        if len(file_in_dir) == 0:
+            return None
+        else:
+            with open(os.path.join(path, file_in_dir[0]), 'r') as file:
+                data = file.read()
+                data = data.split('.')[0].strip()
+                return data
+    return None
         
 test = find_emotion_category(os.path.join(emotion_dir, folder, sub_folder))
         
