@@ -10,7 +10,7 @@ import os
 import cv2
 
 #imagePath = '../Google Photos/2018/IMG_20180702_101025.jpg'
-imagePath = '../Emotion-Dataset/cohn-kanade-images/S005/001/S005_001_00000003.png'
+imagePath = '../faces-data-new/1/00000.png'
 
 cascDir = 'face-cascades/'
 

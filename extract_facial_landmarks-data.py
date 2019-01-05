@@ -82,77 +82,16 @@ import gc
 del categories, category, data_x, data_y, i, image, shuffled_data
 gc.collect()
 
-# Load the required stuff for landmark detection.
-from imutils import face_utils
-import dlib
-from landmarks_calculation import left, right
-
-p = "shape_predictor_68_face_landmarks.dat"
-face_detector = dlib.get_frontal_face_detector()
-landmark_predictor = dlib.shape_predictor(p)
-
-# -----------Calculations to be made for facial muscle approximation.------------
-
-# 2 lists to hold face-masks values and their corresponding categories.
-face_masks_x = []
-face_masks_y = []
-#categories = []
-distance_between = []
-
-# Loop over all images, detect landmarks, calculate face-masks and append to the lists.
-for i in range(len(dataX)):
-    print('Working on image {}\n'.format(i))
-    image = cv2.imread(dataX[i])
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    # Find faces.
-    rects = face_detector(image, 0)
-    for (i, rect) in enumerate(rects):
-        # Find landmark
-        shape = landmark_predictor(image, rect)
-        # Convert to numpy array
-        shape = face_utils.shape_to_np(shape)
-    # List to hold values of single image
-    single_x = []
-    single_y = []
-    for j in range(len(left)):
-        single_x.append(shape[left[j]][0] - shape[right[j]][0])
-        single_y.append(shape[left[j]][1] - shape[right[j]][1])
-    # Append to the list to hold values from images.
-    face_masks_x.append(single_x)
-    face_masks_y.append(single_y)
-    single_x = np.asarray(single_x)
-    single_y = np.asarray(single_y)
-#    distance = np.sqrt(np.square(single_x) + np.square(single_y))
-#    distance_between.append((single_x + single_y)/2)
-    distance_between.append(np.sqrt(np.square(single_x) + np.square(single_y)))
-#    categories.append(y_train[i])
-    
-
-distance_between = np.asarray(distance_between)
-categories = np.asarray(dataY, dtype='int32')
-
-
-# Convert the extracted data to Pandas DataFrame and save to CSV. 
-features_df = pd.DataFrame(distance_between)
-categories_df = pd.DataFrame(categories)
-features_df = pd.concat([features_df, categories_df], axis=1)
-features_df.to_csv('extracted_landmarks_data_new.csv', index=False)
-    
-
-    
-image = cv2.imread(dataX[1])
-rects = face_detector(image)    
-    
 # A function to take an image and return only the face from it.
 casc_directory = 'face-cascades/'
-def find_face(image_path):
+def find_face(image):
     # Create the haar cascade
     faceCascade1 = cv2.CascadeClassifier(os.path.join(casc_directory, 'haarcascade_frontalface_alt.xml'))
     faceCascade2 = cv2.CascadeClassifier(os.path.join(casc_directory, 'haarcascade_frontalface_alt2.xml'))
     faceCascade3 = cv2.CascadeClassifier(os.path.join(casc_directory, 'haarcascade_frontalface_alt_tree.xml'))
     faceCascade4 = cv2.CascadeClassifier(os.path.join(casc_directory, 'haarcascade_frontalface_default.xml'))
     # Read the image
-    image = cv2.imread(image_path)
+#    image = cv2.imread(image_path)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     # Detect faces in the image using 4 different classifiers
     faces1 = faceCascade1.detectMultiScale(
@@ -187,8 +126,82 @@ def find_face(image_path):
         faces = faces4
     else:
         print('No faces found')
+        return (False, 0)
         
-    return faces
+    return (True, faces)
 
-rects = find_face(dataX[2])
+#y = find_face(image)
 
+# Load the required stuff for landmark detection.
+from imutils import face_utils
+import dlib
+from landmarks_calculation import left, right
+
+
+p = "shape_predictor_68_face_landmarks.dat"
+face_detector = dlib.get_frontal_face_detector()
+landmark_predictor = dlib.shape_predictor(p)
+
+# -----------Calculations to be made for facial muscle approximation.------------
+
+# 2 lists to hold face-masks values and their corresponding categories.
+face_masks_x = []
+face_masks_y = []
+#categories = []
+distance_between = []
+
+# Loop over all images, detect landmarks, calculate face-masks and append to the lists.
+for i in range(len(dataX)):
+    print('Working on image {}\n'.format(i))
+    image = cv2.imread(dataX[i])
+#    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # Find faces.
+#    rects = face_detector(image, 0)
+    rects = find_face(image)
+    if rects[0]:
+        rects = rects[1]
+        rects = dlib.rectangle(left = rects[0][0], top=rects[0][1], right=rects[0][2], bottom=rects[0][3])
+        # Find landmark
+        shape = landmark_predictor(image, rects)
+        # Convert to numpy array
+        shape = face_utils.shape_to_np(shape)
+    else: # If haar cascade fails to find face
+        rects = rects[1]
+        rects = face_detector(image, 0)
+        for (i, rect) in enumerate(rects):
+            # Find landmark
+            shape = landmark_predictor(image, rect)
+            # Convert to numpy array
+            shape = face_utils.shape_to_np(shape)
+    # List to hold values of single image
+    single_x = []
+    single_y = []
+    for j in range(len(left)):
+        single_x.append(shape[left[j]][0] - shape[right[j]][0])
+        single_y.append(shape[left[j]][1] - shape[right[j]][1])
+    # Append to the list to hold values from images.
+    face_masks_x.append(single_x)
+    face_masks_y.append(single_y)
+    single_x = np.asarray(single_x)
+    single_y = np.asarray(single_y)
+#    distance = np.sqrt(np.square(single_x) + np.square(single_y))
+#    distance_between.append((single_x + single_y)/2)
+    distance_between.append(np.sqrt(np.square(single_x) + np.square(single_y)))
+#    categories.append(y_train[i])
+    
+
+distance_between = np.asarray(distance_between)
+categories = np.asarray(dataY, dtype='int32')
+
+
+# Convert the extracted data to Pandas DataFrame and save to CSV. 
+features_df = pd.DataFrame(distance_between)
+categories_df = pd.DataFrame(categories)
+features_df = pd.concat([features_df, categories_df], axis=1)
+features_df.to_csv('extracted_landmarks_data_new.csv', index=False)
+    
+
+    
+image = cv2.imread(dataX[1])
+rects = face_detector(image)    
+    
