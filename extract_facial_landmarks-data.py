@@ -199,9 +199,3 @@ features_df = pd.DataFrame(distance_between)
 categories_df = pd.DataFrame(categories)
 features_df = pd.concat([features_df, categories_df], axis=1)
 features_df.to_csv('extracted_landmarks_data_new.csv', index=False)
-    
-
-    
-image = cv2.imread(dataX[1])
-rects = face_detector(image)    
-    

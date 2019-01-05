@@ -12,7 +12,7 @@ import keras
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
-df = pd.read_csv('extracted_landmarks_data.csv')
+df = pd.read_csv('extracted_landmarks_data_new.csv')
 X_train = df.iloc[:, :-1]
 y_train = df.iloc[:, 172]
 
@@ -79,7 +79,7 @@ def model():
 model = model()
 print(model.summary())
 
-history = model.fit(X_train, y_train, epochs = 50, batch_size= 32, validation_data=(X_valid, y_valid))
+history = model.fit(X_train, y_train, epochs = 125, batch_size= 32, validation_data=(X_valid, y_valid))
 
 import matplotlib.pyplot as plt
 plt.plot(history.history['loss'])
@@ -90,7 +90,7 @@ plt.xlabel('Epochs')
 
 model.save('ann-emotion-recognition.h5')
 
-# ANN did not work, try Logistic Regression
+# ANN did not work, try Logistic Regressionfit
 from sklearn.linear_model import LogisticRegression
 classifier = LogisticRegression(random_state = 0)
 #X_train = X_train.reshape(172, 8196)
@@ -112,6 +112,11 @@ def find_face(image_path):
     faceCascade4 = cv2.CascadeClassifier(os.path.join(casc_directory, 'haarcascade_frontalface_default.xml'))
     # Read the image
     image = cv2.imread(image_path)
+    
+    # FInd image dimensions
+    size = image.shape
+    size = size[1] if size[1] < size[0] else size[0]
+    
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     # Detect faces in the image using 4 different classifiers
     faces1 = faceCascade1.detectMultiScale(
@@ -146,25 +151,22 @@ def find_face(image_path):
         faces = faces4
     else:
         print('No faces found')
+        return None
         
-    # Return new image
-    for (x, y, w, h) in faces:
-        new_image = gray[y:y+h+20, x:x+w+20]
-    
-    return new_image
-
-face_image = find_face(image_path)
-
-cv2.imshow('face', face_image)
-cv2.waitKey(0)
+    return faces
+#    # Return new image
+#    for (x, y, w, h) in faces:
+#        new_image = gray[y:y+h+20, x:x+w+20]
+#    
+#    return new_image
 
 # Load the required stuff for landmark detection.
 from imutils import face_utils
 import dlib
 from landmarks_calculation import left, right
-import cv2
 
-image_path = '../Google Photos/2018/00000PORTRAIT_00000_BURST20180407170851895.jpg'
+image_path = '/home/myidispg/My Files/Machine-Learning-Projects/Emotion-Dataset/cohn-kanade-images/S081/005/S081_005_00000019.png'
+#image_path = '../Google Photos/2018/00000PORTRAIT_00000_BURST20180407170851895.jpg'
 
 p = "shape_predictor_68_face_landmarks.dat"
 face_detector = dlib.get_frontal_face_detector()
@@ -172,12 +174,21 @@ landmark_predictor = dlib.shape_predictor(p)
 
 #Find face box in the image
 image = cv2.imread(image_path, 0)
-rect = face_detector(image)
-for (i, rect) in enumerate(rect):
+rects = find_face(image_path)
+rects = dlib.rectangle(left = rects[0][0], top=rects[0][1], right=rects[0][2], bottom=rects[0][3])
+# Find landmark
+shape = landmark_predictor(image, rects)
+# Convert to numpy array
+shape = face_utils.shape_to_np(shape)
+
+
+rects = face_detector(image)
+for (i, rect) in enumerate(rects):
         # Find landmark
         shape = landmark_predictor(image, rect)
         # Convert to numpy array
         shape = face_utils.shape_to_np(shape)
+        
 # Required landmark calculations for a single image        
 x_coords = []
 y_coords = []
@@ -187,12 +198,13 @@ for i in range(len(left)):
 
 x_coords = np.asarray(x_coords)
 y_coords = np.asarray(y_coords)
+distance_between = np.sqrt(np.square(x_coords) + np.square(y_coords))
 average_coords = ((x_coords + y_coords)/2).reshape(1, -1)
 
 # Feature scaling
-test_x = sc.transform(average_coords)
+test_x = sc.transform(distance_between.reshape(1, -1))
 
 
 model = keras.models.load_model('ann-emotion-recognition.h5')
-predict = classifier.predict(test_x)
+predict = classifier.predict(distance_between.reshape(1, -1))
     
