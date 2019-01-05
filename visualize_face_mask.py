@@ -9,7 +9,7 @@ Created on Sat Jan  5 15:33:30 2019
 import cv2
 
 image = cv2.imread('/home/myidispg/My Files/Machine-Learning-Projects/Emotion-Dataset/cohn-kanade-images/S081/005/S081_005_00000019.png', 0)
-image = cv2.imread('../Google Photos/2018/IMG-20180328-WA0000.jpg', 0)
+image = cv2.imread('../Google Photos/2018/IMG-20180409-WA0004.jpg', 0)
 
 from imutils import face_utils
 import dlib
@@ -25,10 +25,8 @@ for (i, rect) in enumerate(rects):
         shape = landmark_predictor(image, rect)
         # Convert to numpy array
         shape = face_utils.shape_to_np(shape)
+        for i in range(len(left)):
+            cv2.line(image, tuple(shape[left[i]]), tuple(shape[right[i]]), (0, 255, 0), 2)
         
-for i in range(len(left)):
-    
-    cv2.line(image, tuple(shape[left[i]]), tuple(shape[right[i]]), (0, 255, 0), 2)
-    
 cv2.imshow('window', image)
 cv2.waitKey(0)
