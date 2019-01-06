@@ -1,8 +1,0 @@
-000=neutral
-001=anger
-002=contempt
-003=disgust
-004=fear
-005=happy
-006=sadness
-007=surprise
