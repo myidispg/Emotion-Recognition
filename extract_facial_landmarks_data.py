@@ -6,7 +6,6 @@ Created on Sun Dec 23 15:19:56 2018
 @author: myidispg
 """
 
-import keras
 import os
 import random
 import numpy as np
@@ -43,39 +42,6 @@ data_x[:], data_y[:] = zip(*shuffled_data)
 # Convert the data to numpy array.
 dataX = np.asarray(data_x)
 dataY = np.asarray(data_y, dtype='int64')
-
-# Perform some augmentation to the images. This will help in adding generality to the model.
-
-#image = cv2.imread(os.path.join(face_data_dir, '1', dataset['1'][1]))
-#
-#def zoom(image):
-#    zoom = iaa.Affine(scale=(1, 1.3))
-#    return zoom.augment_image(image)
-#
-#def pan(image):
-#    pan = iaa.Affine(translate_percent={'x': (-0.1, 0.1), 'y':(-0.1, 0.1)})
-#    return pan.augment_image(image)
-#
-#def img_random_brightness(image):
-#    brightness = iaa.Multiply((0.2, 1.2))
-#    return brightness.augment_image(image)
-#
-#def img_random_flip(image):
-#    image = cv2.flip(image, 1)
-#    return image
-#
-#def random_augment(image_path):
-#    image = cv2.imread(image_path)
-#    if np.random.rand()< 0.5:
-#        image = pan(image)
-#    if np.random.rand()< 0.5:
-#        image = zoom(image)
-#    if np.random.rand()< 0.5:
-#        image = img_random_brightness(image)
-#    if np.random.rand()< 0.5:
-#        image = img_random_flip(image)
-#        
-#    return image
 
 import gc
 
@@ -130,8 +96,6 @@ def find_face(image):
         
     return (True, faces)
 
-#y = find_face(image)
-
 # Load the required stuff for landmark detection.
 from imutils import face_utils
 import dlib
@@ -184,15 +148,11 @@ for i in range(len(dataX)):
     face_masks_y.append(single_y)
     single_x = np.asarray(single_x)
     single_y = np.asarray(single_y)
-#    distance = np.sqrt(np.square(single_x) + np.square(single_y))
-#    distance_between.append((single_x + single_y)/2)
     distance_between.append(np.sqrt(np.square(single_x) + np.square(single_y)))
-#    categories.append(y_train[i])
     
 
 distance_between = np.asarray(distance_between)
 categories = np.asarray(dataY, dtype='int32')
-
 
 # Convert the extracted data to Pandas DataFrame and save to CSV. 
 features_df = pd.DataFrame(distance_between)

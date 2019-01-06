@@ -42,43 +42,61 @@ def accuracy(confusion_matrix):
     sum_of_all_elements = confusion_matrix.sum()
     return diagonal_sum / sum_of_all_elements 
 
-# Try Regression Forest
-from sklearn.ensemble import RandomForestClassifier
-classifier = RandomForestClassifier(max_depth=80, max_features=3, 
-                                    min_samples_leaf=3, min_samples_split=8,
-                                    n_estimators=1000, criterion='entropy',
-                                    random_state=0)
+# Train Logistic Regression
+from sklearn.linear_model import LogisticRegression
+classifier = LogisticRegression(random_state = 0)
 classifier.fit(X_train, y_train)
 
-# Use confusion matrix to analyse
 y_pred = classifier.predict(X_valid)
 # Making the Confusion Matrix
 from sklearn.metrics import confusion_matrix
 cm = confusion_matrix(y_valid, y_pred) # Around 85%
 print("Accuracy- {}".format(accuracy(cm)))
 
-# Apply gridsearch to find the best parameters
-from sklearn.model_selection import GridSearchCV
-param_grid = {
-    'bootstrap': [True],
-    'max_depth': [80, 90, 100, 110],
-    'max_features': [2, 3],
-    'min_samples_leaf': [3, 4, 5],
-    'min_samples_split': [8, 10, 12],
-    'n_estimators': [100, 200, 300, 1000]
-}
-
-grid_search = GridSearchCV(estimator = classifier, param_grid = param_grid, 
-                          cv = 10, n_jobs = -1, verbose = 2)
-
-grid_search.fit(X_train, y_train)
-
-best_accuracy = grid_search.best_score_
-best_parameters = grid_search.best_params_
-
 # Save the classifier to disk
+joblib.dump(classifier, 'logistic-regression-emotion-recognition.pkl')
 import pickle
 # Save the classifier
-with open('random-forest-emotion-recognition.pkl', 'wb')  as file:
+with open('logistic-regression-emotion-recognition.pkl', 'wb')  as file:
     pickle.dump(classifier, file)
-    
+
+# Try Regression Forest
+#from sklearn.ensemble import RandomForestClassifier
+#classifier = RandomForestClassifier(max_depth=80, max_features=3, 
+#                                    min_samples_leaf=3, min_samples_split=8,
+#                                    n_estimators=1000, criterion='entropy',
+#                                    random_state=0)
+#classifier.fit(X_train, y_train)
+#
+## Use confusion matrix to analyse
+#y_pred = classifier.predict(X_valid)
+## Making the Confusion Matrix
+#from sklearn.metrics import confusion_matrix
+#cm = confusion_matrix(y_valid, y_pred) # Around 85%
+#print("Accuracy- {}".format(accuracy(cm)))
+#
+## Apply gridsearch to find the best parameters
+#from sklearn.model_selection import GridSearchCV
+#param_grid = {
+#    'bootstrap': [True],
+#    'max_depth': [80, 90, 100, 110],
+#    'max_features': [2, 3],
+#    'min_samples_leaf': [3, 4, 5],
+#    'min_samples_split': [8, 10, 12],
+#    'n_estimators': [100, 200, 300, 1000]
+#}
+#
+#grid_search = GridSearchCV(estimator = classifier, param_grid = param_grid, 
+#                          cv = 10, n_jobs = -1, verbose = 2)
+#
+#grid_search.fit(X_train, y_train)
+#
+#best_accuracy = grid_search.best_score_
+#best_parameters = grid_search.best_params_
+#
+## Save the classifier to disk
+#import pickle
+## Save the classifier
+#with open('random-forest-emotion-recognition.pkl', 'wb')  as file:
+#    pickle.dump(classifier, file)
+#    

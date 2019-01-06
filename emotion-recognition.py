@@ -69,7 +69,8 @@ def find_face(gray):
 
 # Open the image from path specified by cmd line
 
-image = cv2.imread(args['i'])
+image = cv2.imread(args['i'], 0)
+#image = cv2.imread('/home/myidispg/My Files/Machine-Learning-Projects/Emotion-Dataset/cohn-kanade-images/S061/001/S061_001_00000012.png', 0)
 
 
 p = "shape_predictor_68_face_landmarks.dat"
@@ -124,16 +125,21 @@ import pickle
 from sklearn.externals import joblib
 
 # Load the saved classifier
-with open('random-forest-emotion-recognition.pkl', 'rb') as file:
-    classifier = pickle.load(file)
+#with open('logistic-regression-emotion-recognition.pkl', 'rb') as file:
+#    classifier = pickle.load(file)
+
+classifier = joblib.load('logistic-regression-emotion-recognition.pkl')
 
 # Load the MinMaxScaler
 scaler = joblib.load('min-max-scaler.sav') 
 
-predict = classifier.predict(distance_between.reshape(1, -1))
+distance_between = distance_between.reshape(1, -1)
+distance_between = scaler.transform(distance_between)
+
+predict = classifier.predict(distance_between)
 
 print(predict[0])
 
-print("The person's emotion seems to be- {}".format(emotions_list[predict[0] - 1]))
+print("The person's emotion seems to be- {}".format(emotions_list[predict[0]]))
 
 
