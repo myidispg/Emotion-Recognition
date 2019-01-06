@@ -9,7 +9,6 @@ Created on Sat Jan  5 15:33:30 2019
 import cv2
 
 image = cv2.imread('/home/myidispg/My Files/Machine-Learning-Projects/Emotion-Dataset/cohn-kanade-images/S081/005/S081_005_00000019.png', 0)
-image = cv2.imread('../Google Photos/2018/IMG-20180409-WA0004.jpg', 0)
 
 from imutils import face_utils
 import dlib
@@ -30,3 +29,6 @@ for (i, rect) in enumerate(rects):
         
 cv2.imshow('window', image)
 cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+cv2.imwrite('face_mask.jpg', image)
