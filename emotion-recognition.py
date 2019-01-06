@@ -121,12 +121,7 @@ x_coords = np.asarray(x_coords)
 y_coords = np.asarray(y_coords)
 distance_between = np.sqrt(np.square(x_coords) + np.square(y_coords))
 
-import pickle
 from sklearn.externals import joblib
-
-# Load the saved classifier
-#with open('logistic-regression-emotion-recognition.pkl', 'rb') as file:
-#    classifier = pickle.load(file)
 
 classifier = joblib.load('logistic-regression-emotion-recognition.pkl')
 
