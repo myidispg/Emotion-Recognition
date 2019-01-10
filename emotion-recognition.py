@@ -21,8 +21,6 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-i', '-image', required=True, help='The path of the image with a face')
 args = vars(parser.parse_args())
 
-print(args)
-
 casc_directory = 'face-cascades/'
 def find_face(gray):
     # Create the haar cascade
@@ -71,7 +69,7 @@ def find_face(gray):
 
 image = cv2.imread(args['i'], 0)
 #image = cv2.imread('/home/myidispg/My Files/Machine-Learning-Projects/Emotion-Dataset/cohn-kanade-images/S061/001/S061_001_00000012.png', 0)
-
+#image = cv2.imread('mummy/2.jpeg', 0)
 
 p = "shape_predictor_68_face_landmarks.dat"
 face_detector = dlib.get_frontal_face_detector()
@@ -94,7 +92,7 @@ if len(rects) == 0:
         import sys 
         sys.exit()
     else:
-        rects = dlib.rectangle(left = rects[0][0], top=rects[0][1], right=rects[0][2], bottom=rects[0][3])
+        rects = dlib.rectangle(left = rects[1][0][0], top=rects[1][0][1], right=rects[1][0][2], bottom=rects[1][0][3])
         print("rects- {}".format(rects))
         print("left- {}, right- {}, top- {}, bottom- {}".format(rects.left(), rects.right(), rects.top(), rects.bottom()))
         shape = landmark_predictor(image, rects)
@@ -125,15 +123,9 @@ from sklearn.externals import joblib
 
 classifier = joblib.load('logistic-regression-emotion-recognition.pkl')
 
-# Load the MinMaxScaler
-scaler = joblib.load('min-max-scaler.sav') 
-
 distance_between = distance_between.reshape(1, -1)
-distance_between = scaler.transform(distance_between)
 
 predict = classifier.predict(distance_between)
-
-print(predict[0])
 
 print("The person's emotion seems to be- {}".format(emotions_list[predict[0]]))
 
