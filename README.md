@@ -6,6 +6,17 @@ My first approach was going to be simply training a Convolutional Neural Network
 
 First I downloaded the dataset and sorted it. All the images of a particular emotion class are saved in a single directory outside the directory in which this repository is saved. For example, the numerical code for 'surprise' emotion is '7', hence all images labeled as surprised are saved in a single directory with directory name- faces-data/7/00000.png. This helped in easier understanding for later use.
 
+## How to use ###
+1. Clone the repository.
+2. Use the terminal to run the "emotion-recognition.py" file. It takes an argument with the image path with a face.
+3. The run command should look like this-
+    python emotion-recognition.py -i"path-to-image"
+4. The program will now load all the required files and detect the emotion.
+5. The output will be a string containing the person's emotion.
+
+# Explanation of the method use to detect emotion #
+The following text describes the method used to detect the emotion.
+
 ## Extract Facial Features ##
 I used Haar Cascade and dlibs to detect faces and extract the 68 landmarks.
 The landmarks look like this- 
